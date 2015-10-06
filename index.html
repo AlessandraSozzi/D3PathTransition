@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<body>
+<style>
+path {
+  fill: none;
+  stroke: #000;
+  stroke-width: 3px;
+}
+circle {
+  fill: steelblue;
+  stroke: #fff;
+  stroke-width: 3px;
+}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+<script>
+var points = [
+  [480, 200],
+  [580, 400],
+  [680, 100],
+  [780, 300],
+  [180, 300],
+  [280, 100],
+  [380, 400]
+];
+var svg = d3.select("body").append("svg")
+    .attr("width", 960)
+    .attr("height", 500);
+var path = svg.append("path")
+    .data([points])
+    .attr("d", d3.svg.line()
+    .tension(0) // Catmull–Rom
+    .interpolate("cardinal-closed"));
+
+var circle = svg.append("circle")
+    .attr("r", 13)
+    .attr("transform", "translate(" + points[0] + ")");
+
+transition();
+
+function transition() {
+  path.transition()
+      .duration(10000)
+      .attrTween("stroke-dasharray", tweenDash)
+      .each("end", function() { d3.select(this).call(transition); });
+}
+// Returns an attrTween for translating along the specified path element.
+function tweenDash() {
+  var l = path.node().getTotalLength();
+      console.log(l);
+  var i = d3.interpolateString("0," + l, l + "," + l);
+    return function(t) {
+        var circle2 = d3.select("circle");
+        var p = path.node().getPointAtLength(t * l);
+
+        circle2.attr("transform", "translate(" + p.x + "," + p.y + ")");//move marker
+        console.log(t*l);
+        console.log(i(t));
+        return i(t);
+  };
+}
+</script>
